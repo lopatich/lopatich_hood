@@ -7,8 +7,8 @@ root.geometry('800x600')
 number_of_balls = 3
 canv = Canvas(root, bg='white')
 canv.pack(fill=BOTH, expand=1)
-speedx = [3, 3, 3]
-speedy = [3, 2, 3]
+speedx = [5, 4, 6]
+speedy = [6, 2, 3]
 colors = ['red', 'orange', 'yellow', 'green', 'blue']
 balls = []
 poolx = []
@@ -17,18 +17,33 @@ poolr = []
 sc_main = 0
 sc = 0
 boss = []
-speedy_boos = 5
-speedx_boss = 6
+speedy_boos = 7
+speedx_boss = 8
 gde_b00s = False
 cheto_budet = 10
 count = None
+l_count = None
+lose_count = 0
+
+scoreLabel = Label(root, bg='white', fg='black', width=40)
+label = Label(root, bg='white', fg='black', width=40)
+label['text'] = 'введите свое имя'
+label.pack()
+e = Entry(root, width=20)
+e.pack()
+
+zapis = True
+
 
 def new_ball():
+    ''' Создает шарики по 3 каждые 4 секунды если количесво очков больше
+     определленного то переключается на создаение босса'''
     boss.clear()
     balls.clear()
     pooly.clear()
     poolx.clear()
     poolr.clear()
+    global cr, cr_b
     global x, y, r
     global ball
     global gde_b00s
@@ -42,15 +57,17 @@ def new_ball():
         pooly.append(y)
         poolr.append(r)
         balls.append(canv.create_oval(x - r, y - r, x + r, y + r, fill=choice(colors), width=0))
-    if sc >= cheto_budet:
-        root.after(1000, create_boss)
-        gde_b00s = True
-    else:
-        root.after(4000, new_ball)
-        gde_b00s = False
+    if lose_count < 5:
+        if sc >= cheto_budet:
+            root.after(4000, create_boss)
+            gde_b00s = True
+        else:
+            root.after(4000, new_ball)
+            gde_b00s = False
 
 
 def create_boss():
+    ''' Фукция которая создает обьект босса. при количесве очков больше определленого создается босс '''
     global gde_b00s
     boss.clear()
     canv.delete(ALL)
@@ -58,64 +75,77 @@ def create_boss():
     y = rnd(100, 400)
     r = 60
     chort(x, y, r)
-    if sc >= cheto_budet:
-        root.after(100, create_boss)
-        gde_b00s = True
-    else:
-        root.after(4000, new_ball)
-        gde_b00s = False
+    if lose_count < 5:
+        if sc >= cheto_budet:
+            root.after(4000, create_boss)
+            gde_b00s = True
+        else:
+            root.after(4000, new_ball)
+            gde_b00s = False
 
 
 def chort(x, y, r):
-    boss.append(canv.create_polygon((2 * x + r) / 2 - 6, y - r / 2, (2 * x + r) / 2 + 6, y - r / 2, (2 * x + r) / 2 + 7, y - 2 * r))
-    boss.append(canv.create_polygon((2 * x - r) / 2 - 7, y - r / 2, (2 * x - r) / 2 + 7, y - r / 2, (2 * x - r) / 2 + 7, y - 2 * r))
+    """  Функция которая рисует босса(черта)"""
+    boss.append(canv.create_polygon((2 * x + r) / 2 - 6, y - r / 2, (2 * x + r) / 2 + 6, y - r / 2, (2 * x + r) / 2 + 7,
+                                    y - 2 * r))
+    boss.append(canv.create_polygon((2 * x - r) / 2 - 7, y - r / 2, (2 * x - r) / 2 + 7, y - r / 2, (2 * x - r) / 2 + 7,
+                                    y - 2 * r))
     boss.append(canv.create_oval(x - r, y - r, x + r, y + r, fill="red", width=0))
-    boss.append(canv.create_oval((2*x - r)/2 - 10, (2*y-r)/2 - 10, (2*x - r)/2 + 10, (2*y-r)/2 + 10, fill="black", width=0))
+    boss.append(canv.create_oval((2 * x - r) / 2 - 10, (2 * y - r) / 2 - 10, (2 * x - r) / 2 + 10, (2 * y - r) / 2 + 10,
+                                 fill="black", width=0))
     boss.append(canv.create_oval((2 * x + r) / 2 - 10, (2 * y - r) / 2 - 10, (2 * x + r) / 2 + 10, (2 * y - r) / 2 + 10,
-                     fill="black", width=0))
+                                 fill="black", width=0))
 
 
 def move_boss():
+    """ особый тип движения для босс"""
     global speedy_boos
     global speedx_boss
     for i in range(5):
         canv.move(boss[i], speedx_boss, speedy_boos)
-        if 2*75 > canv.coords(boss[1])[2] or canv.coords(boss[1])[2] >= 600:
+        if 2 * 75 > canv.coords(boss[2])[2] or canv.coords(boss[2])[2] >= 600:
             speedx_boss = - speedx_boss
-        if 2*75 > canv.coords(boss[1])[3] or canv.coords(boss[1])[3] >= 400:
+        if 2 * 75 > canv.coords(boss[2])[3] or canv.coords(boss[2])[3] >= 400:
             speedy_boos = - speedy_boos
-    if sc >= cheto_budet:
-        root.after(100, move_boss)
+    if gde_b00s:
+        root.after(10, move_boss)
     else:
+        time.sleep(4)
         root.after(10, move)
 
 
 def move():
+    ''' задаеет движение шарикам переключается на движение босса если босс присутсвует на экране '''
     global speedy
     global speedx
     for i in range(number_of_balls):
         canv.move(balls[i], speedx[i], speedy[i])
-        if 0 + 2*r > canv.coords(balls[i])[2] or canv.coords(balls[i])[2] >= 800:
+        if 0 + 2 * r > canv.coords(balls[i])[2] or canv.coords(balls[i])[2] >= 800:
             speedx[i] = - speedx[i]
-        if 0 + 2*r > canv.coords(balls[i])[3] or canv.coords(balls[i])[3] >= 600:
+        if 0 + 2 * r > canv.coords(balls[i])[3] or canv.coords(balls[i])[3] >= 600:
             speedy[i] = - speedy[i]
-    if sc >= cheto_budet:
-        root.after(100, move_boss)
+    if gde_b00s:
+        time.sleep(4)
+        root.after(10, move_boss)
     else:
         root.after(10, move)
 
 
 def score():
-    global count
+    ''' выводит количество попаданий и промахов на экран'''
+    global count, lose_count, l_count
     canv.delete(count)
+    canv.delete(l_count)
     global sc
     count = canv.create_text(30, 30, text=str(sc))
+    l_count = canv.create_text(60, 30, text=str(lose_count))
     root.after(400, score)
 
 
 def click(event):
+    ''' считывает нажатия с мышки считает количесво попаданий и промахов, убирает те шары в которые попал'''
     global cheto_budet
-    global sc_main, sc
+    global sc_main, sc, lose_count
     sc_main = 0
     if gde_b00s:
         center_x = (canv.coords(boss[2])[2] + canv.coords(boss[2])[0]) / 2
@@ -129,6 +159,7 @@ def click(event):
             print(cheto_budet)
             print(sc)
         else:
+            lose_count += 1
             print('ваще не четко')
     else:
         for i in range(number_of_balls):
@@ -143,13 +174,33 @@ def click(event):
             sc += 1
         else:
             print('не четко')
+            lose_count += 1
 
 
+def lose():
+    ''' начинает выполнятся с определенного количесвта промахов, останавливает шары на экране, не дает появлятся новым
+    выводит на экран счет и записывает его в текстовы дркумент'''
+    global speedy, speedx, speedy_boos, speedx_boss, cr, cr_b, zapis
+    if lose_count >= 5:
+        speedy = [0, 0, 0]
+        speedx = [0, 0, 0]
+        speedy_boos = 0
+        speedx_boss = 0
+        canv.create_text(400, 300, text='Неплохо сыграли! Ваш счет:' + str(sc))
+        if zapis:
+            name = e.get()
+            file = open('results.txt', 'a')
+            file.write(name + ' ' + str(sc) + "\n")
+            file.close()
+            zapis = False
+
+    root.after(400, lose)
 
 
 new_ball()
 score()
 move()
 canv.bind('<Button-1>', click)
+lose()
 
 mainloop()
