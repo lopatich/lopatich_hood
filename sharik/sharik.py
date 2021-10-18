@@ -24,6 +24,7 @@ cheto_budet = 10
 count = None
 l_count = None
 lose_count = 0
+end_game = 5
 
 scoreLabel = Label(root, bg='white', fg='black', width=40)
 label = Label(root, bg='white', fg='black', width=40)
@@ -57,7 +58,7 @@ def new_ball():
         pooly.append(y)
         poolr.append(r)
         balls.append(canv.create_oval(x - r, y - r, x + r, y + r, fill=choice(colors), width=0))
-    if lose_count < 5:
+    if lose_count < end_game:
         if sc >= cheto_budet:
             root.after(4000, create_boss)
             gde_b00s = True
@@ -75,7 +76,7 @@ def create_boss():
     y = rnd(100, 400)
     r = 60
     chort(x, y, r)
-    if lose_count < 5:
+    if lose_count < end_game:
         if sc >= cheto_budet:
             root.after(4000, create_boss)
             gde_b00s = True
@@ -181,7 +182,7 @@ def lose():
     ''' начинает выполнятся с определенного количесвта промахов, останавливает шары на экране, не дает появлятся новым
     выводит на экран счет и записывает его в текстовы дркумент'''
     global speedy, speedx, speedy_boos, speedx_boss, cr, cr_b, zapis
-    if lose_count >= 5:
+    if lose_count >= end_game:
         speedy = [0, 0, 0]
         speedx = [0, 0, 0]
         speedy_boos = 0
