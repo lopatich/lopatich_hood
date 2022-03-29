@@ -3,8 +3,10 @@ import re
 
 
 def norma(data):
+    min_data = min(data)
+    max_data = max(data)
     for i in range(len(data)):
-        data[i] = (data[i] - min(data)) / (max(data) - min(data))
+        data[i] = (data[i] - min_data) / (max_data - min_data)
     return data
 
 
